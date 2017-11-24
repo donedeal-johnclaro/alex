@@ -1,5 +1,1 @@
-job_question: What job does {{ person }} have ?
-
-correct_job_answer: That is correct
-
-wrong_job_answer: No! {{ person }} job is {{ job }}
+god: What would you like to do?
