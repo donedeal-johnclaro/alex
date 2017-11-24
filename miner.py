@@ -48,16 +48,26 @@ def get_user_messages(channel_id, next=None, user_data=None):
 	
 	return data
 			
-channels = sc.api_call('channels.list')['channels']
+# channels = sc.api_call('channels.list')['channels']
+# data = {}
+# for channel in channels:
+# 	channel_id = channel['id']
+# 	user_data = get_user_messages(channel_id)
+# 	for k,v in user_data.items():
+# 		if k in data.keys():
+# 			data[k] = data[k] + v
+# 		else:
+# 			data[k] = v
 data = {}
-for channel in channels:
-	channel_id = channel['id']
-	user_data = get_user_messages(channel_id)
-	for k,v in user_data.items():
-		if k in data.keys():
-			data[k] = data[k] + v
-		else:
-			data[k] = v
+users = sc.api_call('users.list')
+for user in users['members']:
+	if not user['deleted']:
+		try:
+			name = user['profile']['real_name_normalized']
+			title = user['profile']['title']
+			data[name] = title
+		except KeyError:
+			pass
 
-with open('user_messages.json', 'w') as user_messages_file:
-	json.dump(data, user_messages_file, indent=4, sort_keys=True)
+with open('user_jobs.json', 'w') as user_jobs_file:
+	json.dump(data, user_jobs_file, indent=4, sort_keys=True)
