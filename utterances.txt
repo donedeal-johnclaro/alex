@@ -1,2 +1,5 @@
+LightUpIntent Light on
 LightUpIntent Let there be light
+
+LightDownIntent Light off
 LightDownIntent Darkness
