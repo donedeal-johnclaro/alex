@@ -1,6 +1,8 @@
 import logging
 import random
+import os
 
+import requests
 from flask import Flask, render_template
 from flask_ask import Ask, question, statement, session
 
@@ -20,7 +22,7 @@ PEOPLE = {
     "Anneliese Schnittger": "Customer Services Manager - Daft.ie",
     "Aoife McCormack": "Motor Customer Support Manager",
     "Aoife O' Brien": "QA Intern (DoneDeal.ie)",
-    "Arunkumar Aousula": "QA Automation Engineer @ P&M Team",
+    "Arunkumar Aousula": "QA Automation Engineer at P&M Team",
     "Barry Connaughton": "Guest",
     "Barry Murphy": "Engineering Manager - Frontend",
     "Bartosz Zolynski": "Engineer Manager - Backend (Daft.ie)",
@@ -50,7 +52,7 @@ PEOPLE = {
     "Eamonn Fallon": "CEO Distilled SCH",
     "Emma Hunt": "",
     "Ernesto Fernandez": "iOS Developer",
-    "Esteban Walsh": "iOS Developer @ DoneDeal.ie",
+    "Esteban Walsh": "iOS Developer at DoneDeal.ie",
     "Eve Makarova": "Product Manager @Adverts @DoneDeal",
     "External Test": "I test integrations",
     "Fabio Mignogna": "Senior iOS Developer 2",
@@ -59,7 +61,7 @@ PEOPLE = {
     "Gabriel de Tassigny": "Backend developer",
     "Gareth Davies": "Snr UX Designer",
     "Gary Doolin": "Android Developer",
-    "Gary Meehan": "Frontend @ DoneDeal",
+    "Gary Meehan": "Frontend at DoneDeal",
     "Gustavo Godoi": "Frontend developer at @Donedeal.ie",
     "Hilda O'Brien": "",
     "Jana Platau-Wagner": "Programme Manager",
@@ -67,8 +69,8 @@ PEOPLE = {
     "Jenny Franklin": "Lead Design",
     "Jenny O'Sullivan": "Adverts Customer Support",
     "Jessa Pajarito": "Junior Android Developer",
-    "Joao Moreira": "Software Engineer @ Property (Daft.ie)",
-    "John Brennan": "Frontend Developer @ P&M team",
+    "Joao Moreira": "Software Engineer at Property (Daft.ie)",
+    "John Brennan": "Frontend Developer at P&M team",
     "John Claro": "Graduate Data Engineer",
     "John Needham": "Head of Engineering - Journal Media",
     "Judyta Holubowicz": "Chief Product Officer",
@@ -82,11 +84,11 @@ PEOPLE = {
     "Maeve Carey": "Technical Project Manager",
     "Maghnus O'Kane": "Unabashed Goldfish",
     "Mahmoud Mohamed": "Systems admin",
-    "Mario Magdic": "Software Engineer @ adverts.ie",
+    "Mario Magdic": "Software Engineer at adverts.ie",
     "Martin Peters": "Head of Analytics & Data Services",
     "Maurizio Crespi": "Adverts Systems Engineer",
     "Melanie Doyle": "Junior Designer Motor Team",
-    "Milen Dobrev": "Lead Platform Developer @ Adverts.ie",
+    "Milen Dobrev": "Lead Platform Developer at Adverts.ie",
     "Nerijus Urbietis": "Junior Desktop Support Engineer",
     "Noel Tate": "Marketplaces Product",
     "Padraig Howlin": "Head of Engineering - Property and Motor",
@@ -98,7 +100,7 @@ PEOPLE = {
     "Rob Hume": "Motor - Strategy & Business Development",
     "Roisin": "Customer Support Representative",
     "Ronan Doyle": "Senior Android Developer",
-    "Ronan O Keeffe": "Site Reliability Engineer @ Daft and DoneDeal",
+    "Ronan O Keeffe": "Site Reliability Engineer at Daft and DoneDeal",
     "Ronan O'Neill": "Head of Engineering",
     "Sarah Downey": "",
     "Sean Culleton": "Interim Engineering Manager - Quality",
@@ -111,9 +113,12 @@ PEOPLE = {
     "apollo-bot": "Posts messages/images to apollo-log channel",
     "superscouse": "Tout and Scammer hunter at Adverts.ie"
 }
+ZIGBEE_URL = os.environ['ZIGBEE_URL']
 
 @ask.launch
 def job_question():
+    requests.delete('{}/light/1'.format(ZIGBEE_URL))
+    requests.delete('{}/light/2'.format(ZIGBEE_URL))
     random_person = random.choice(PEOPLE.keys())
     job_question_msg = render_template('job_question', person=random_person)
     session.attributes['person'] = random_person
@@ -129,8 +134,10 @@ def job_answer(job):
     print job
     print '----------------------------------------------------------------------------------------'
     if correct_job.lower() == job:
+        requests.post('{}/light/2'.format(ZIGBEE_URL))
         job_answer_msg = render_template('correct_job_answer')
     else:
+        requests.post('{}/light/1'.format(ZIGBEE_URL))
         job_answer_msg = render_template('wrong_job_answer', person=correct_person, job=correct_job)
     return statement(job_answer_msg)
 

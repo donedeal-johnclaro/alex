@@ -62,12 +62,14 @@ data = {}
 users = sc.api_call('users.list')
 for user in users['members']:
 	if not user['deleted']:
-		try:
-			name = user['profile']['real_name_normalized']
-			title = user['profile']['title']
-			data[name] = title
-		except KeyError:
-			pass
+		if user['profile']['real_name_normalized'] == 'John Claro':
+			print f(user)
+		# try:
+		# 	name = user['profile']['real_name_normalized']
+		# 	title = user['profile']['title']
+		# 	data[name] = title
+		# except KeyError:
+		# 	pass
 
 with open('user_jobs.json', 'w') as user_jobs_file:
 	json.dump(data, user_jobs_file, indent=4, sort_keys=True)
