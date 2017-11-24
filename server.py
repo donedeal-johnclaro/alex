@@ -120,13 +120,18 @@ def job_question():
     return question(job_question_msg)
 
 
-@ask.intent('JobIntent', convert={'person': str})
-def job_answer(person):
+@ask.intent('JobIntent', convert={'job': str})
+def job_answer(job):
     correct_person = session.attributes['person']
-    if person == correct_person:
+    correct_job = PEOPLE[correct_person]
+    
+    print '----------------------------------------------------------------------------------------'
+    print job
+    print '----------------------------------------------------------------------------------------'
+    if correct_job.lower() == job:
         job_answer_msg = render_template('correct_job_answer')
     else:
-        job_answer_msg = render_template('wrong_job_answer', person=person, job=PEOPLE[person])
+        job_answer_msg = render_template('wrong_job_answer', person=correct_person, job=correct_job)
     return statement(job_answer_msg)
 
 
