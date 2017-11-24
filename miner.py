@@ -9,21 +9,31 @@ slack_token = os.environ['SLACK_API_TOKEN']
 sc = SlackClient(slack_token)
 
 
-def f(data):
-	return json.dumps(data, indent=4, sort_keys=True)
-
-
-def get_user_messages(channel_id, next=None, user_data=None):
-	data = user_data if user_data else {}
+def f(uf_data):
+	"""
 	
+	:param dict uf_data:
+	:return:
+	"""
+	return json.dumps(uf_data, indent=4, sort_keys=True)
+
+
+def get_user_messages(um_channel_id, latest_timestamp='', um_data=None):
+	"""
+	
+	:param str um_channel_id:
+	:param str latest_timestamp:
+	:param dict um_data:
+	:return:
+	"""
 	if not next:
-		print '--------------------CURRENTLY IN CHANNEL: {}--------------------'.format(channel_id)
+		print '---------------CURRENTLY IN CHANNEL: {}---------------'.format(um_channel_id)
 		channel_history = sc.api_call(
-			'channels.history', channel=channel_id
+			'channels.history', channel=um_channel_id
 		)
 	else:
 		channel_history = sc.api_call(
-			'channels.history', channel=channel_id, latest=next
+			'channels.history', channel=um_channel_id, latest=latest_timestamp
 		)
 		
 	try:
@@ -41,35 +51,39 @@ def get_user_messages(channel_id, next=None, user_data=None):
 	
 		if channel_history['has_more']:
 			last_message = len(channel_history['messages']) - 1
-			next = channel_history['messages'][last_message]['ts']
-			return get_user_messages(channel_id, next=next, user_data=data)
+			ts = channel_history['messages'][last_message]['ts']
+			return get_user_messages(um_channel_id, latest_timestamp=ts, um_data=um_data)
 	except KeyError:
 		pass
 	
 	return data
-			
-# channels = sc.api_call('channels.list')['channels']
-# data = {}
-# for channel in channels:
-# 	channel_id = channel['id']
-# 	user_data = get_user_messages(channel_id)
-# 	for k,v in user_data.items():
-# 		if k in data.keys():
-# 			data[k] = data[k] + v
-# 		else:
-# 			data[k] = v
-data = {}
-users = sc.api_call('users.list')
-for user in users['members']:
-	if not user['deleted']:
-		if user['profile']['real_name_normalized'] == 'John Claro':
-			print f(user)
-		# try:
-		# 	name = user['profile']['real_name_normalized']
-		# 	title = user['profile']['title']
-		# 	data[name] = title
-		# except KeyError:
-		# 	pass
 
-with open('user_jobs.json', 'w') as user_jobs_file:
-	json.dump(data, user_jobs_file, indent=4, sort_keys=True)
+
+def get_users():
+	u_data = {}
+	users = sc.api_call('users.list')
+	for user in users['members']:
+		if not user['deleted']:
+			if user['profile']['real_name_normalized'] == 'John Claro':
+				print f(user)
+			try:
+				name = user['profile']['real_name_normalized']
+				title = user['profile']['title']
+				u_data[name] = title
+			except KeyError:
+				pass
+
+			
+if __name__ == '__main__':
+	channels = sc.api_call('channels.list')['channels']
+	data = {}
+	channel_id = os.environ['GP_GENERAL_CHANNEL_ID']
+	user_data = get_user_messages(channel_id)
+	for k, v in user_data.items():
+		if k in data.keys():
+			data[k] = data[k] + v
+		else:
+			data[k] = v
+
+	with open('user_jobs.json', 'w') as user_jobs_file:
+		json.dump(data, user_jobs_file, indent=4, sort_keys=True)
