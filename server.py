@@ -2,7 +2,7 @@ import logging
 import random
 
 from flask import Flask, render_template
-from flask_ask import Ask, question, statement
+from flask_ask import Ask, question, statement, session
 
 
 app = Flask(__name__)
@@ -114,13 +114,19 @@ PEOPLE = {
 
 @ask.launch
 def job_question():
-    job_question_msg = render_template('job_question', person=random.choice(PEOPLE.keys()))
+    random_person = random.choice(PEOPLE.keys())
+    job_question_msg = render_template('job_question', person=random_person)
+    session.attributes['person'] = random_person
     return question(job_question_msg)
 
 
 @ask.intent('JobIntent', convert={'person': str})
 def job_answer(person):
-    job_answer_msg = render_template('job_answer', person=person, job=PEOPLE[person])
+    correct_person = session.attributes['person']
+    if person == correct_person:
+        job_answer_msg = render_template('correct_job_answer')
+    else:
+        job_answer_msg = render_template('wrong_job_answer', person=person, job=PEOPLE[person])
     return statement(job_answer_msg)
 
 

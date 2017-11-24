@@ -1,3 +1,5 @@
 job_question: What job does {{ person }} have ?
 
-job_answer: It looks like {{ person }} is a {{ job }}
+correct_job_answer: That is correct
+
+wrong_job_answer: No! {{ person }} is a {{ job }}
