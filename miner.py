@@ -25,22 +25,26 @@ def get_user_messages(channel_id, next=None, user_data=None):
 		channel_history = sc.api_call(
 			'channels.history', channel=channel_id, latest=next
 		)
-	for index, message in enumerate(channel_history['messages']):
-		user_info = sc.api_call('users.info', user=message['user'])
-		user = user_info['user']['profile']['real_name_normalized']
-		text = message['text']
 		
-		if user in data.keys():
-			print 'Appending {} with message {}'.format(user, len(text))
-			data[user].append(text)
-		else:
-			print 'Adding {} with message {}'.format(user, len(text))
-			data[user] = [text]
-
-	if channel_history['has_more']:
-		last_message = len(channel_history['messages']) - 1
-		next = channel_history['messages'][last_message]['ts']
-		return get_user_messages(channel_id, next=next, user_data=data)
+	try:
+		for index, message in enumerate(channel_history['messages']):
+			user_info = sc.api_call('users.info', user=message['user'])
+			user = user_info['user']['profile']['real_name_normalized']
+			text = message['text']
+			
+			if user in data.keys():
+				print 'Appending {} with message {}'.format(user, len(text))
+				data[user].append(text)
+			else:
+				print 'Adding {} with message {}'.format(user, len(text))
+				data[user] = [text]
+	
+		if channel_history['has_more']:
+			last_message = len(channel_history['messages']) - 1
+			next = channel_history['messages'][last_message]['ts']
+			return get_user_messages(channel_id, next=next, user_data=data)
+	except KeyError:
+		pass
 	
 	return data
 			
