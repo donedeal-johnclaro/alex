@@ -18,6 +18,19 @@ def f(uf_data):
 	return json.dumps(uf_data, indent=4, sort_keys=True)
 
 
+def get_users():
+	u_data = {}
+	users = sc.api_call('users.list')
+	for user in users['members']:
+		if not user['deleted']:
+			try:
+				name = user['profile']['real_name_normalized']
+				title = user['profile']['title']
+				u_data[name] = title
+			except KeyError:
+				pass
+
+
 def get_user_messages(um_channel_id, latest_timestamp='', um_data=None):
 	"""
 	
@@ -26,6 +39,8 @@ def get_user_messages(um_channel_id, latest_timestamp='', um_data=None):
 	:param dict um_data:
 	:return:
 	"""
+	um_data = um_data if um_data else {}
+
 	if not next:
 		print '---------------CURRENTLY IN CHANNEL: {}---------------'.format(um_channel_id)
 		channel_history = sc.api_call(
@@ -42,36 +57,21 @@ def get_user_messages(um_channel_id, latest_timestamp='', um_data=None):
 			user = user_info['user']['profile']['real_name_normalized']
 			text = message['text']
 			
-			if user in data.keys():
+			if user in um_data.keys():
 				print 'Appending {} with message {}'.format(user, len(text))
-				data[user].append(text)
+				um_data[user].append(text)
 			else:
 				print 'Adding {} with message {}'.format(user, len(text))
-				data[user] = [text]
+				um_data[user] = [text]
 	
-		if channel_history['has_more']:
-			last_message = len(channel_history['messages']) - 1
-			ts = channel_history['messages'][last_message]['ts']
-			return get_user_messages(um_channel_id, latest_timestamp=ts, um_data=um_data)
+		# if channel_history['has_more']:
+		# 	last_message = len(channel_history['messages']) - 1
+		# 	ts = channel_history['messages'][last_message]['ts']
+		# 	return get_user_messages(um_channel_id, latest_timestamp=ts, um_data=um_data)
 	except KeyError:
 		pass
 	
-	return data
-
-
-def get_users():
-	u_data = {}
-	users = sc.api_call('users.list')
-	for user in users['members']:
-		if not user['deleted']:
-			if user['profile']['real_name_normalized'] == 'John Claro':
-				print f(user)
-			try:
-				name = user['profile']['real_name_normalized']
-				title = user['profile']['title']
-				u_data[name] = title
-			except KeyError:
-				pass
+	return um_data
 
 			
 if __name__ == '__main__':
@@ -85,5 +85,5 @@ if __name__ == '__main__':
 		else:
 			data[k] = v
 
-	with open('user_jobs.json', 'w') as user_jobs_file:
+	with open('user_messages.json', 'w') as user_jobs_file:
 		json.dump(data, user_jobs_file, indent=4, sort_keys=True)
