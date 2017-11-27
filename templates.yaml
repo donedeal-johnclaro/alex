@@ -1,5 +1,7 @@
 god: Welcome to Alex, what would you like to do?
 
+job_question: Is {{ person }} a dog or a cat?
+
 correct_job_answer: That is correct
 
 wrong_job_answer: No! {{ person }} is a {{ job }}
