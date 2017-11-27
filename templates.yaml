@@ -1,1 +1,5 @@
-god: What would you like to do?
+god: Welcome to Alex, what would you like to do?
+
+correct_job_answer: That is correct
+
+wrong_job_answer: No! {{ person }} is a {{ job }}
