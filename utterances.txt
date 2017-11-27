@@ -3,3 +3,8 @@ LightUpIntent Let there be light
 
 LightDownIntent Light off
 LightDownIntent Darkness
+
+JobQuestionIntent Ask me a question
+
+JobAnswerIntent {person} is a {job}
+JobAnswerIntent {job}

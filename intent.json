@@ -5,6 +5,22 @@
     },
     {
       "intent": "LightDownIntent"
+    },
+    {
+      "intent": "JobQuestionIntent"
+    },
+    {
+      "intent": "JobAnswerIntent",
+      "slots": [
+        {
+          "name": "person",
+          "type": "LIST_OF_PEOPLE"
+        },
+        {
+          "name": "job",
+          "type": "LIST_OF_JOBS"
+        }
+      ]
     }
   ]
 }
