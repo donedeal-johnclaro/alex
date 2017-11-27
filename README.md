@@ -1,4 +1,4 @@
-# God
+# Alex
 For Hackday on Nov 24, 2017
 
 # Usage
